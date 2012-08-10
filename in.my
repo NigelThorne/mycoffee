@@ -1,0 +1,3 @@
+10.times()=>{%JS{ 
+console.log("hello"); 
+}JS%}
