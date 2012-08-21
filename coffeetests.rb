@@ -3,6 +3,8 @@ require 'rspec'
 require 'mycoffee'
 require 'parslet/rig/rspec'
 
+describe MyCoffeeCompiler
+
 
 describe CoffeeParser  do
   let(:parser) { CoffeeParser.new }
@@ -57,7 +59,7 @@ describe CoffeeParser  do
   end
   context "verbatum" do
     it "passes everything without change" do
-        parser.verbatum.should parse('%JS{ this is something that you ought to know }JS%')
+        parser.verbatum.should parse('` this is something that you ought to know `')
     end
   end
   context "functions" do

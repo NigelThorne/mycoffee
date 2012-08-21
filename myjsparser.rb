@@ -12,8 +12,8 @@ class MyJSParser < Parslet::Parser
 	rule(:verbatum)  { start_javascript >> javascript.as(:js) >> end_javascript }
 	rule(:int)       { match('[0-9]').repeat(1).as(:int) }
 
-	rule(:start_javascript) 	{str("%JS{")}
-	rule(:end_javascript) 		{str("}JS%")}
+	rule(:start_javascript) 	{str("`")}
+	rule(:end_javascript) 		{str("`")}
 	rule(:javascript) 			{(end_javascript.absnt? >> any).repeat}    
 end
 
