@@ -1,0 +1,334 @@
+@@tree = {
+    "Root" => [
+		["", "return $$ = new yy.Block;", nil],
+		["Body", "return $$ = $1;", nil],
+		["Block TERMINATOR", "return $$ = $1;", nil]
+	],
+	"Body" => [
+		["Line", "$$ = yy.Block.wrap([$1]);", nil],
+		["Body TERMINATOR Line", "$$ = $1.push($3);", nil],
+		["Body TERMINATOR", "$$ = $1;", nil]
+	],
+	"Line" => [
+		["Expression", "$$ = $1;", nil],
+		["Statement", "$$ = $1;", nil]
+	],
+	"Statement" => [
+		["Return", "$$ = $1;", nil],
+		["Comment", "$$ = $1;", nil],
+		["STATEMENT", "$$ = new yy.Literal($1);", nil]
+	],
+	"Expression" => [
+		["Value", "$$ = $1;", nil],
+		["Invocation", "$$ = $1;", nil],
+		["Code", "$$ = $1;", nil],
+		["Operation", "$$ = $1;", nil],
+		["Assign", "$$ = $1;", nil],
+		["If", "$$ = $1;", nil],
+		["Try", "$$ = $1;", nil],
+		["While", "$$ = $1;", nil],
+		["For", "$$ = $1;", nil],
+		["Switch", "$$ = $1;", nil],
+		["Class", "$$ = $1;", nil],
+		["Throw", "$$ = $1;", nil]
+	],
+	"Block" => [
+		["INDENT OUTDENT", "$$ = new yy.Block;", nil],
+		["INDENT Body OUTDENT", "$$ = $2;", nil]
+	],
+	"Identifier" => [
+		["IDENTIFIER", "$$ = new yy.Literal($1);", nil]
+	],
+	"AlphaNumeric" => [
+		["NUMBER", "$$ = new yy.Literal($1);", nil],
+		["STRING", "$$ = new yy.Literal($1);", nil]
+	],
+	"Literal" => [
+		["AlphaNumeric", "$$ = $1;", nil],
+		["JS", "$$ = new yy.Literal($1);", nil],
+		["REGEX", "$$ = new yy.Literal($1);", nil],
+		["DEBUGGER", "$$ = new yy.Literal($1);", nil],
+		["UNDEFINED", "$$ = new yy.Undefined;", nil],
+		["nil", "$$ = new yy.nil;", nil],
+		["BOOL", "$$ = new yy.Bool($1);", nil]
+	],
+	"Assign" => [
+		["Assignable = Expression", "$$ = new yy.Assign($1, $3);", nil],
+		["Assignable = TERMINATOR Expression", "$$ = new yy.Assign($1, $4);", nil],
+		["Assignable = INDENT Expression OUTDENT", "$$ = new yy.Assign($1, $4);", nil]
+	],
+	"AssignObj" => [
+		["ObjAssignable", "$$ = new yy.Value($1);", nil],
+		["ObjAssignable : Expression", "$$ = new yy.Assign(new yy.Value($1), $3, 'object');", nil],
+		["ObjAssignable : INDENT Expression OUTDENT", "$$ = new yy.Assign(new yy.Value($1), $4, 'object');", nil],
+		["Comment", "$$ = $1;", nil]
+	],
+	"ObjAssignable" => [
+		["Identifier", "$$ = $1;", nil],
+		["AlphaNumeric", "$$ = $1;", nil],
+		["ThisProperty", "$$ = $1;", nil]
+	],
+	"Return" => [
+		["RETURN Expression", "$$ = new yy.Return($2);", nil],
+		["RETURN", "$$ = new yy.Return;", nil]
+	],
+	"Comment" => [
+		["HERECOMMENT", "$$ = new yy.Comment($1);", nil]
+	],
+	"Code" => [
+		["PARAM_START ParamList PARAM_END FuncGlyph Block", "$$ = new yy.Code($2, $5, $4);", nil],
+		["FuncGlyph Block", "$$ = new yy.Code([], $2, $1);", nil]
+	],
+	"FuncGlyph" => [
+		["->", "$$ = 'func';", nil],
+		["=>", "$$ = 'boundfunc';", nil]
+	],
+	"OptComma" => [
+		["", "$$ = $1;", nil],
+		[",", "$$ = $1;", nil]
+	],
+	"ParamList" => [
+		["", "$$ = [];", nil],
+		["Param", "$$ = [$1];", nil],
+		["ParamList , Param", "$$ = $1.concat($3);", nil],
+		["ParamList OptComma TERMINATOR Param", "$$ = $1.concat($4);", nil],
+		["ParamList OptComma INDENT ParamList OptComma OUTDENT", "$$ = $1.concat($4);", nil]
+	],
+	"Param" => [
+		["ParamVar", "$$ = new yy.Param($1);", nil],
+		["ParamVar ...", "$$ = new yy.Param($1, nil, true);", nil],
+		["ParamVar = Expression", "$$ = new yy.Param($1, $3);", nil]
+	],
+	"ParamVar" => [
+		["Identifier", "$$ = $1;", nil],
+		["ThisProperty", "$$ = $1;", nil],
+		["Array", "$$ = $1;", nil],
+		["Object", "$$ = $1;", nil]
+	],
+	"Splat" => [
+		["Expression ...", "$$ = new yy.Splat($1);", nil]
+	],
+	"SimpleAssignable" => [
+		["Identifier", "$$ = new yy.Value($1);", nil],
+		["Value Accessor", "$$ = $1.add($2);", nil],
+		["Invocation Accessor", "$$ = new yy.Value($1, [].concat($2));", nil],
+		["ThisProperty", "$$ = $1;", nil]
+	],
+	"Assignable" => [
+		["SimpleAssignable", "$$ = $1;", nil],
+		["Array", "$$ = new yy.Value($1);", nil],
+		["Object", "$$ = new yy.Value($1);", nil]
+	],
+	"Value" => [
+		["Assignable", "$$ = $1;", nil],
+		["Literal", "$$ = new yy.Value($1);", nil],
+		["Parenthetical", "$$ = new yy.Value($1);", nil],
+		["Range", "$$ = new yy.Value($1);", nil],
+		["This", "$$ = $1;", nil]
+	],
+	"Accessor" => [
+		[". Identifier", "$$ = new yy.Access($2);", nil],
+		["?. Identifier", "$$ = new yy.Access($2, 'soak');", nil],
+		[" =>: Identifier", "$$ = [new yy.Access(new yy.Literal('prototype')), new yy.Access($2)];", nil],
+		[" =>:", "$$ = new yy.Access(new yy.Literal('prototype'));", nil],
+		["Index", "$$ = $1;", nil]
+	],
+	"Index" => [
+		["INDEX_START IndexValue INDEX_END", "$$ = $2;", nil],
+		["INDEX_SOAK Index", "$$ = yy.extend($2, {\n          soak: true\n        });", nil]
+	],
+	"IndexValue" => [
+		["Expression", "$$ = new yy.Index($1);", nil],
+		["Slice", "$$ = new yy.Slice($1);", nil]
+	],
+	"Object" => [
+		["{ AssignList OptComma }", "$$ = new yy.Obj($2, $1.generated);", nil]
+	],
+	"AssignList" => [
+		["", "$$ = [];", nil],
+		["AssignObj", "$$ = [$1];", nil],
+		["AssignList , AssignObj", "$$ = $1.concat($3);", nil],
+		["AssignList OptComma TERMINATOR AssignObj", "$$ = $1.concat($4);", nil],
+		["AssignList OptComma INDENT AssignList OptComma OUTDENT", "$$ = $1.concat($4);", nil]
+	],
+	"Class" => [
+		["CLASS", "$$ = new yy.Class;", nil],
+		["CLASS Block", "$$ = new yy.Class(nil, nil, $2);", nil],
+		["CLASS EXTENDS Expression", "$$ = new yy.Class(nil, $3);", nil],
+		["CLASS EXTENDS Expression Block", "$$ = new yy.Class(nil, $3, $4);", nil],
+		["CLASS SimpleAssignable", "$$ = new yy.Class($2);", nil],
+		["CLASS SimpleAssignable Block", "$$ = new yy.Class($2, nil, $3);", nil],
+		["CLASS SimpleAssignable EXTENDS Expression", "$$ = new yy.Class($2, $4);", nil],
+		["CLASS SimpleAssignable EXTENDS Expression Block", "$$ = new yy.Class($2, $4, $5);", nil]
+	],
+	"Invocation" => [
+		["Value OptFuncExist Arguments", "$$ = new yy.Call($1, $3, $2);", nil],
+		["Invocation OptFuncExist Arguments", "$$ = new yy.Call($1, $3, $2);", nil],
+		["SUPER", "$$ = new yy.Call('super', [new yy.Splat(new yy.Literal('arguments'))]);", nil],
+		["SUPER Arguments", "$$ = new yy.Call('super', $2);", nil]
+	],
+	"OptFuncExist" => [
+		["", "$$ = false;", nil],
+		["FUNC_EXIST", "$$ = true;", nil]
+	],
+	"Arguments" => [
+		["CALL_START CALL_END", "$$ = [];", nil],
+		["CALL_START ArgList OptComma CALL_END", "$$ = $2;", nil]
+	],
+	"This" => [
+		["THIS", "$$ = new yy.Value(new yy.Literal('this'));", nil],
+		["@", "$$ = new yy.Value(new yy.Literal('this'));", nil]
+	],
+	"ThisProperty" => [
+		["@ Identifier", "$$ = new yy.Value(new yy.Literal('this'), [new yy.Access($2)], 'this');", nil]
+	],
+	"Array" => [
+		["[ ]", "$$ = new yy.Arr([]);", nil],
+		["[ ArgList OptComma ]", "$$ = new yy.Arr($2);", nil]
+	],
+	"RangeDots" => [
+		["..", "$$ = 'inclusive';", nil],
+		["...", "$$ = 'exclusive';", nil]
+	],
+	"Range" => [
+		["[ Expression RangeDots Expression ]", "$$ = new yy.Range($2, $4, $3);", nil]
+	],
+	"Slice" => [
+		["Expression RangeDots Expression", "$$ = new yy.Range($1, $3, $2);", nil],
+		["Expression RangeDots", "$$ = new yy.Range($1, nil, $2);", nil],
+		["RangeDots Expression", "$$ = new yy.Range(nil, $2, $1);", nil],
+		["RangeDots", "$$ = new yy.Range(nil, nil, $1);", nil]
+	],
+	"ArgList" => [
+		["Arg", "$$ = [$1];", nil],
+		["ArgList , Arg", "$$ = $1.concat($3);", nil],
+		["ArgList OptComma TERMINATOR Arg", "$$ = $1.concat($4);", nil],
+		["INDENT ArgList OptComma OUTDENT", "$$ = $2;", nil],
+		["ArgList OptComma INDENT ArgList OptComma OUTDENT", "$$ = $1.concat($4);", nil]
+	],
+	"Arg" => [
+		["Expression", "$$ = $1;", nil],
+		["Splat", "$$ = $1;", nil]
+	],
+	"SimpleArgs" => [
+		["Expression", "$$ = $1;", nil],
+		["SimpleArgs , Expression", "$$ = [].concat($1, $3);", nil]
+	],
+	"Try" => [
+		["TRY Block", "$$ = new yy.Try($2);", nil],
+		["TRY Block Catch", "$$ = new yy.Try($2, $3[0], $3[1]);", nil],
+		["TRY Block FINALLY Block", "$$ = new yy.Try($2, nil, nil, $4);", nil],
+		["TRY Block Catch FINALLY Block", "$$ = new yy.Try($2, $3[0], $3[1], $5);", nil]
+	],
+	"Catch" => [
+		["CATCH Identifier Block", "$$ = [$2, $3];", nil]
+	],
+	"Throw" => [
+		["THROW Expression", "$$ = new yy.Throw($2);", nil]
+	],
+	"Parenthetical" => [
+		["( Body )", "$$ = new yy.Parens($2);", nil],
+		["( INDENT Body OUTDENT )", "$$ = new yy.Parens($3);", nil]
+	],
+	"WhileSource" => [
+		["WHILE Expression", "$$ = new yy.While($2);", nil],
+		["WHILE Expression WHEN Expression", "$$ = new yy.While($2, {\n          guard: $4\n        });", nil],
+		["UNTIL Expression", "$$ = new yy.While($2, {\n          invert: true\n        });", nil],
+		["UNTIL Expression WHEN Expression", "$$ = new yy.While($2, {\n          invert: true,\n          guard: $4\n        });", nil]
+	],
+	"While" => [
+		["WhileSource Block", "$$ = $1.addBody($2);", nil],
+		["Statement WhileSource", "$$ = $2.addBody(yy.Block.wrap([$1]));", nil],
+		["Expression WhileSource", "$$ = $2.addBody(yy.Block.wrap([$1]));", nil],
+		["Loop", "$$ = $1;", nil]
+	],
+	"Loop" => [
+		["LOOP Block", "$$ = new yy.While(new yy.Literal('true')).addBody($2);", nil],
+		["LOOP Expression", "$$ = new yy.While(new yy.Literal('true')).addBody(yy.Block.wrap([$2]));", nil]
+	],
+	"For" => [
+		["Statement ForBody", "$$ = new yy.For($1, $2);", nil],
+		["Expression ForBody", "$$ = new yy.For($1, $2);", nil],
+		["ForBody Block", "$$ = new yy.For($2, $1);", nil]
+	],
+	"ForBody" => [
+		["FOR Range", "$$ = {\n          source: new yy.Value($2)\n        };", nil],
+		["ForStart ForSource", "$$ = (function () {\n        $2.own = $1.own;\n        $2.name = $1[0];\n        $2.index = $1[1];\n        return $2;\n      }());", nil]
+	],
+	"ForStart" => [
+		["FOR ForVariables", "$$ = $2;", nil],
+		["FOR OWN ForVariables", "$$ = (function () {\n        $3.own = true;\n        return $3;\n      }());", nil]
+	],
+	"ForValue" => [
+		["Identifier", "$$ = $1;", nil],
+		["ThisProperty", "$$ = $1;", nil],
+		["Array", "$$ = new yy.Value($1);", nil],
+		["Object", "$$ = new yy.Value($1);", nil]
+	],
+	"ForVariables" => [
+		["ForValue", "$$ = [$1];", nil],
+		["ForValue , ForValue", "$$ = [$1, $3];", nil]
+	],
+	"ForSource" => [
+		["FORIN Expression", "$$ = {\n          source: $2\n        };", nil],
+		["FOROF Expression", "$$ = {\n          source: $2,\n          object: true\n        };", nil],
+		["FORIN Expression WHEN Expression", "$$ = {\n          source: $2,\n          guard: $4\n        };", nil],
+		["FOROF Expression WHEN Expression", "$$ = {\n          source: $2,\n          guard: $4,\n          object: true\n        };", nil],
+		["FORIN Expression BY Expression", "$$ = {\n          source: $2,\n          step: $4\n        };", nil],
+		["FORIN Expression WHEN Expression BY Expression", "$$ = {\n          source: $2,\n          guard: $4,\n          step: $6\n        };", nil],
+		["FORIN Expression BY Expression WHEN Expression", "$$ = {\n          source: $2,\n          step: $4,\n          guard: $6\n        };", nil]
+	],
+	"Switch" => [
+		["SWITCH Expression INDENT Whens OUTDENT", "$$ = new yy.Switch($2, $4);", nil],
+		["SWITCH Expression INDENT Whens ELSE Block OUTDENT", "$$ = new yy.Switch($2, $4, $6);", nil],
+		["SWITCH INDENT Whens OUTDENT", "$$ = new yy.Switch(nil, $3);", nil],
+		["SWITCH INDENT Whens ELSE Block OUTDENT", "$$ = new yy.Switch(nil, $3, $5);", nil]
+	],
+	"Whens" => [
+		["When", "$$ = $1;", nil],
+		["Whens When", "$$ = $1.concat($2);", nil]
+	],
+	"When" => [
+		["LEADING_WHEN SimpleArgs Block", "$$ = [[$2, $3]];", nil],
+		["LEADING_WHEN SimpleArgs Block TERMINATOR", "$$ = [[$2, $3]];", nil]
+	],
+	"IfBlock" => [
+		["IF Expression Block", "$$ = new yy.If($2, $3, {\n          type: $1\n        });", nil],
+		["IfBlock ELSE IF Expression Block", "$$ = $1.addElse(new yy.If($4, $5, {\n          type: $3\n        }));", nil]
+	],
+	"If" => [
+		["IfBlock", "$$ = $1;", nil],
+		["IfBlock ELSE Block", "$$ = $1.addElse($3);", nil],
+		["Statement POST_IF Expression", "$$ = new yy.If($3, yy.Block.wrap([$1]), {\n          type: $2,\n          statement: true\n        });", nil],
+		["Expression POST_IF Expression", "$$ = new yy.If($3, yy.Block.wrap([$1]), {\n          type: $2,\n          statement: true\n        });", nil]
+	],
+	"Operation" => [
+		["UNARY Expression", "$$ = new yy.Op($1, $2);", nil],
+		["- Expression", "$$ = new yy.Op('-', $2);",
+		{
+			"prec" => "UNARY"
+		}],
+		["+ Expression", "$$ = new yy.Op('+', $2);",
+		{
+			"prec" => "UNARY"
+		}],
+		["-- SimpleAssignable", "$$ = new yy.Op('--', $2);", nil],
+		["++ SimpleAssignable", "$$ = new yy.Op('++', $2);", nil],
+		["SimpleAssignable --", "$$ = new yy.Op('--', $1, nil, true);", nil],
+		["SimpleAssignable ++", "$$ = new yy.Op('++', $1, nil, true);", nil],
+		["Expression ?", "$$ = new yy.Existence($1);", nil],
+		["Expression + Expression", "$$ = new yy.Op('+', $1, $3);", nil],
+		["Expression - Expression", "$$ = new yy.Op('-', $1, $3);", nil],
+		["Expression MATH Expression", "$$ = new yy.Op($2, $1, $3);", nil],
+		["Expression SHIFT Expression", "$$ = new yy.Op($2, $1, $3);", nil],
+		["Expression COMPARE Expression", "$$ = new yy.Op($2, $1, $3);", nil],
+		["Expression LOGIC Expression", "$$ = new yy.Op($2, $1, $3);", nil],
+		["Expression RELATION Expression", "$$ = (function () {\n        if ($2.charAt(0) === '!') {\n          return new yy.Op($2.slice(1), $1, $3).invert();\n        } else {\n          return new yy.Op($2, $1, $3);\n        }\n      }());", nil],
+		["SimpleAssignable COMPOUND_ASSIGN Expression", "$$ = new yy.Assign($1, $3, $2);", nil],
+		["SimpleAssignable COMPOUND_ASSIGN INDENT Expression OUTDENT", "$$ = new yy.Assign($1, $4, $2);", nil],
+		["SimpleAssignable EXTENDS Expression", "$$ = new yy.Extends($1, $3);", nil]
+	]
+}
+
+@@tokens = @@tree.values.map{|o| o.map{|v| v[0].split(" ").reject{|t| @@tree.keys.include?(t) }}}.flatten
+@@options = @@tree.values.map{|o| o.map{|v| v[2] }}.flatten.compact.uniq  #[{"prec"=>"UNARY"}]
